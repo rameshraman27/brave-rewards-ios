@@ -12,7 +12,7 @@ protocol WalletContentView: AnyObject {
 }
 
 class WalletViewController: UIViewController, RewardsSummaryProtocol {
-  
+  private var reachability: Reachability?
   let state: RewardsState
   let ledgerObserver: LedgerObserver
   weak var currentNotification: RewardsNotification?
@@ -117,6 +117,7 @@ class WalletViewController: UIViewController, RewardsSummaryProtocol {
     setupPublisherView(publisherSummaryView)
     view.layoutIfNeeded()
     startNotificationObserver()
+    startNetworkObserver()
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -438,6 +439,28 @@ class WalletViewController: UIViewController, RewardsSummaryProtocol {
     default:
       assertionFailure()
     }
+  }
+}
+
+extension WalletViewController {
+  func startNetworkObserver() {
+    reachability = try? Reachability()
+    reachability?.whenReachable = {[weak self] _ in
+      guard let self = self else {
+        return
+      }
+      //hide network not available banner
+      self.walletView.setNotificationView(nil, animated: true)
+      self.loadNextNotification()
+    }
+    reachability?.whenUnreachable = {[weak self] _ in
+      guard let self = self else {
+        return
+      }
+      //Show network not available banner
+      self.walletView.setNotificationView(RewardsNotificationViewBuilder.getNoNetworkNotification(), animated: true)
+    }
+    try? reachability?.startNotifier()
   }
 }
 
