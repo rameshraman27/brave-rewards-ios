@@ -38,7 +38,7 @@ class TippingViewController: UIViewController, UIViewControllerTransitioningDele
     
     modalPresentationStyle = .overCurrentContext
     if #available(iOS 13.0, *) {
-      isModalInPresentation = true
+      //isModalInPresentation = true
     }
     transitioningDelegate = self
   }
